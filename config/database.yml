@@ -4,7 +4,7 @@ sqlite: &sqlite
 
 mysql: &mysql
   adapter: mysql2
-  database: mysql
+  database: sampledb
   username: evong
   password: supersecret
   host: 172.30.88.13
