@@ -1,36 +1,41 @@
-sqlite: &sqlite
-  adapter: sqlite3
-  database: db/<%= Rails.env %>.sqlite3
+# PostgreSQL. Versions 8.2 and up are supported.
 
-mysql: &mysql
-  adapter: mysql2
-  database: sampledb
-  username: evong
-  password: supersecret
-  host: 172.30.88.13
-  port: 3306
+<% user = ENV.key?("POSTGRESQL_ADMIN_PASSWORD") ? "root" : ENV["POSTGRESQL_USER"] %>
+<% password = ENV.key?("POSTGRESQL_ADMIN_PASSWORD") ? ENV["POSTGRESQL_ADMIN_PASSWORD"] : ENV["POSTGRESQL_PASSWORD"] %>
+<% db_service = ENV.fetch("DATABASE_SERVICE_NAME","").upcase %>
 
-postgresql: &postgresql
+default: &default
   adapter: postgresql
-  database: <%=ENV['OPENSHIFT_APP_NAME']%>
-  username: <%=ENV['OPENSHIFT_POSTGRESQL_DB_USERNAME']%>
-  password: <%=ENV['OPENSHIFT_POSTGRESQL_DB_PASSWORD']%>
-  host: <%=ENV['OPENSHIFT_POSTGRESQL_DB_HOST']%>
-  port: <%=ENV['OPENSHIFT_POSTGRESQL_DB_PORT']%>
-  min_messages: ERROR
-  reconnect: false
-
-defaults: &defaults
-  pool: 5
-  timeout: 5000
-  encoding: utf8
-  <<: *mysql
+  encoding: unicode
+  # For details on connection pooling, see rails configuration guide
+  # http://guides.rubyonrails.org/configuring.html#database-pooling
+  pool: <%= ENV["POSTGRESQL_MAX_CONNECTIONS"] || 5 %>
+  username: <%= user %>
+  password: <%= password %>
+  host: <%= ENV["#{db_service}_SERVICE_HOST"] %>
+  port: <%= ENV["#{db_service}_SERVICE_PORT"] %>
+  database: <%= ENV["POSTGRESQL_DATABASE"] %>
 
 development:
-  <<: *defaults
+  <<: *default
+  #database: blog_development
+  #username:
+  #password:
+  #host:
+  #port:
 
-test: &test
-  <<: *defaults
+test:
+  <<: *default
+  #database: blog_test
+  #username:
+  #password:
+  #host:
+  #port:
 
 production:
-  <<: *defaults
+  <<: *default
+  #database: blog_production
+  #username: myapp
+  #password: <%= ENV['MYAPP_DATABASE_PASSWORD'] %>
+  #host:
+  #port:
